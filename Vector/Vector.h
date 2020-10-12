@@ -14,7 +14,7 @@ protected:
 	void copyFrom(T const* A, Rank lo, Rank hi);  //复刢数组区间A[lo, hi)
 	void expand();  //空间不足时扩容
 	void shrink();  //装填因子过小时压缩
-	bool bubble(Rank lo, Rank hi); //扫描交换
+	//bool bubble(Rank lo, Rank hi); //扫描交换
 	void bubbleSort(Rank lo, Rank hi); //起泡排序算法
 	Rank max(Rank lo, Rank hi); //选取最大元素
 	void selectionSort(Rank lo, Rank hi); //选择排序算法
@@ -192,10 +192,10 @@ int Vector<T>::deduplicate() { //删除无序向量中重复元素
 	Rank i = 1;
 	while (i < _size)
 	{
-		if (find(_elem[i], 0, i) < 0)
-			++i;
-		else
-			remove(i);
+if (find(_elem[i], 0, i) < 0)
+	++i;
+else
+remove(i);
 	}
 	return oldSize - _size;
 }
@@ -207,7 +207,9 @@ int Vector<T>::uniquify() {//删除有序向量中重复元素（双指针）
 	for (int fastIndex = 0; fastIndex < _size; ++fastIndex)
 		if (_elem[fastIndex] != _elem[fastIndex + 1])
 			_elem[++slowIndex] = _elem[fastIndex + 1];
-	return oldSize - slowIndex - 1;
+	_size = slowIndex + 1;
+	shrink();
+	return oldSize - _size;
 }
 
 template <typename T>
@@ -220,4 +222,112 @@ template <typename T> template < typename VST> //元素类型、操作器
 void Vector<T>::traverse(VST& visit) //利用函数对象机制的遍历
 {
 	for (int i = 0; i < _size; i++) visit(_elem[i]);
+}
+
+template <typename T>
+int Vector<T>::disordered()const {
+	int n = 0;
+	for (int i = 1; i < _size; ++i)
+		if (_elem[i - 1] > _elem[i])
+			++n;
+	return n;
+}
+
+
+template <typename T>
+Rank Vector<T>::search(T const& e, Rank lo, Rank hi)const {
+	return binSearch(_elem, e, lo, hi);
+}
+//
+//template <typename T>
+//static Rank binSearch(T* A, T const& e, Rank lo, Rank hi) {
+//	while (lo < hi)
+//	{
+//		Rank mi = (lo + hi) >> 1;
+//		if (e < A[mid]) hi = mi;
+//		else if (e > A[mid]) lo = mi;
+//		else return mi;
+//	}
+//	return -1;
+//}
+
+//template <typename T>
+//static Rank binSearch(T* A, T const& e, Rank lo, Rank hi) {
+//	while (hi - lo > 1)
+//	{
+//		Rank mi = (lo + hi) >> 1;
+//		（e < A[mi]) ? hi = mi : lo = mi;
+//	}
+//	return (e == A[lo]) ? lo : -1;
+//}
+
+
+
+template <typename T>
+static Rank binSearch(T* A, T const& e, Rank lo, Rank hi) {
+	while (hi > lo)
+	{
+		Rank mi = (lo + hi) >> 1;
+		(e < A[mi]) ? hi = mi : lo = mi + 1;
+	}
+	return --lo;
+}
+
+
+template <typename T>
+void Vector<T>::sort(Rank lo, Rank hi) {
+	switch (rand() % 2)
+	{
+	case 1:
+		bubbleSort(lo, hi); break;
+	default:
+		mergeSort(lo, hi);
+		break;
+	}
+}
+
+template <typename T>
+void Vector<T>::bubbleSort(Rank lo, Rank hi) {
+	bool sorted = false;
+	while (!sorted)
+	{
+		sorted = true; //借助布尔型标志位sorted，可及时提前退出，而不至于蛮力地做n - 1趟扫描交换
+
+		for (int i = lo + 1; i < hi; ++i) {
+			if (_elem[i] < _elem[i - 1]){
+			swap(_elem[i], _elem[i - 1]);
+			sorted = false;
+			}
+		}
+		--hi; //至此末元素必然就位，故可以缩短待排序序列癿有效长度
+	}
+}
+
+//template <typename T>
+//void Vector<T>::selectionSort(Rank lo, Rank hi) {
+//
+//}
+
+template <typename T>
+void Vector<T>::mergeSort(Rank lo, Rank hi) {
+	if (hi - lo < 2) return;
+	Rank mi = (lo + hi) >> 1;
+	mergeSort(lo, mi);
+	mergeSort(mi, hi);
+	merge(lo, mi, hi);
+}
+
+template <typename T>
+void Vector<T>::merge(Rank lo, Rank mi, Rank hi) {
+	T* A = _elem + lo;
+	Rank lb = mi - lo;
+	T* B = new T[lb];
+	for (Rank i = 0; i < lb; B[i] = A[i++]);
+	Rank lc = hi - mi;
+	T* C = _elem + mi;
+	for (int i = 0, j = 0, k = 0; (j < lb) || (k < lc);) {
+		if ((j < lb) && (k >= lc) || B[j] <= C[k]) A[i++] = B[j++];
+		if ((k < lc) && (j >= lb) || C[k] < B[j]) A[i++] = C[k++];
+	}
+	delete[]B;
 }
