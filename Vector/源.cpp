@@ -16,6 +16,8 @@ int main() {
 	
 	printVector(v);
 	v.remove(5);
+	int n = v.disordered();
+	cout << "ÄæÐòÊýÎª£º" << n << endl;
 	printVector(v);
 	int j = v.deduplicate();
 	printVector(v);
