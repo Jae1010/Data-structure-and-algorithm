@@ -1,5 +1,7 @@
 #pragma once
 #include "BinNode.h"
+#include "../Stack/Stack.h"
+#include "../Queue/Queue.h"
 
 template <typename T> class BinTree {
 protected:
@@ -126,4 +128,164 @@ BinTree<T>* BinTree<T>::secede(BinNodePosi(T) x) {
 	_size -= S->_size;
 	return S;
 }
+
+template < typename T, typename VST> //元素类型、操作器
+void travPre_R(BinNodePosi(T) x, VST& visit) { //二叉树先序遍历算法（递归版）
+	if (!x) return;
+	visit(x->data);
+	travPre_R(x->lChild, visit);
+	travPre_R(x->rChild, visit);
+}
+
+template < typename T, typename VST> //元素类型、操作器
+void travPost_R(BinNodePosi(T) x, VST & visit) { //二叉树后序遍历算法（递归版）
+	if (!x) return;
+	travPost_R(x->lChild, visit);
+	travPost_R(x->rChild, visit);
+	visit(x->data);
+}
+
+template < typename T, typename VST> //元素类型、操作器
+void travIn_R(BinNodePosi(T) x, VST & visit) { //二叉树中序遍历算法（递归版）
+	if (!x) return;
+	travIn_R(x->lChild, visit);
+	visit(x->data);
+	travIn_R(x->rChild, visit);
+}
+
+template < typename T, typename VST> //元素类型、操作器
+static void visitAlongLeftBranch(BinNodePosi(T) x, VST& visit, Stack<BinNodePosi(T)>& S) {
+	while (x)
+	{
+		visit(x->data);
+		if(x->rChild)
+			S.push(x->rChild);
+		x = x->lChild;
+	}
+}
+
+template < typename T, typename VST> //元素类型、操作器
+void travPre_I2(BinNodePosi(T) x, VST & visit) { //二叉树先序遍历算法（迭代版#2）
+	Stack<BinNodePosi(T)> S;
+	while (true)
+	{
+		visitAlongLeftBranch(x, visit, S);
+		if (S.empty()) break;
+		x = S.pop();
+	}
+	
+}
+
+template < typename T> 
+static void goAlongLeftBranch(BinNodePosi(T) x, Stack<BinNodePosi(T)>& S) {
+	while (x)
+	{
+		S.push(x);
+		x = x->lChild;
+	}
+}
+
+template < typename T, typename VST> //元素类型、操作器
+void travIn_I1(BinNodePosi(T) x, VST& visit) { //二叉树中序遍历算法（迭代版#1）
+	Stack<BinNodePosi(T)> S;
+	while (true)
+	{
+		goAlongLeftBranch(x, S);
+		if (S.empty()) break;
+		x = S.pop();
+		visit(x->data);
+		x = x->rChild;
+	}
+}
+
+template <typename T> 
+BinNodePosi(T) BinNode<T>::succ() { //定位节点vde 直接后继
+	BinNodePosi(T) s = this;
+	if (rChild) {
+		s = rChild;
+		while (HasLChild(*s))
+		{
+			s = s->lChild;
+		}
+	}
+	else
+	{
+		while (IsRChild(*s))
+		{
+			s = s->parent;
+		}
+		s = s->parent;
+	}
+	return s;
+}
+
+template < typename T, typename VST> //元素类型、操作器
+void travIn_I3(BinNodePosi(T) x, VST& visit) { //二叉树中序遍历算法（迭代版#3，无需辅助栈）
+	bool backtrack = false;
+	while (true)
+	{
+		if (!backtrack && HasLChild(*x))
+			x = x->lChild;
+		else
+		{
+			visit(x->data);
+			if (HasRChild(*x)) {
+				x = x->rChild;
+				backtrack = false;
+			}
+			else
+			{
+				if (!(x = x->succ())) break;
+				backtrack = true;
+			}
+		}
+	}
+}
+
+template < typename T> //在以S栈顶节点为根癿子树中，找刡最高左侧可见叶节点
+static void gotoHLVFL(Stack<BinNodePosi(T)>& S) {
+	while (BinNodePosi(T) x = S.top())
+	{
+		if (HasLChild(*x)) {
+			if (HasRChild(*x))
+			{
+				S.push(x->rChild);
+			}			
+			S.push(x->lChild);
+		}
+		else
+		{
+			S.push(x->rChild);
+		}
+	}
+	S.pop();
+}
+
+
+template < typename T, typename VST>
+void travPost_I(BinNodePosi(T) x, VST & visit) { //二叉树的后序遍历（迭代版）
+	Stack<BinNodePosi(T)> S;
+	if (x) S.push(x);
+	while (!S.empty())
+	{
+		if (S.top() != x->parent)
+			gotoHLVFL(S);
+		x = S.pop();
+		visit(x->data);
+	}
+}
+
+//广度优先遍历又称层次遍历
+template <typename T> template < typename VST> //元素类型、操作器
+void BinNode<T>::travLevel(VST& visit) {
+	Queue<BinNodePosi(T)> Q;
+	Q.enqueue(this);
+	while (!Q.empty())
+	{
+		BinNodePosi(T) x = Q.dequeue(); visit(x->data);
+		if (HasLChild(*x)) Q.enqueue(x->lChild);
+		if (HasRChild(*x)) Q.enqueue(x->rChild);
+	}
+}
+
 
