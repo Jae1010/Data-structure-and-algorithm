@@ -1,6 +1,5 @@
 #pragma once
-#include "../BST/BST.h"
-#include "../BinTree/BinTree.h"
+#include "../BST.h"
 
 #define Balanced(x) (stature((x).lChild) == stature((x).rChild))  //理想平衡条件
 #define BalFac(x) (stature((x).lChild) - stature((x).rChild))//平衡因子
