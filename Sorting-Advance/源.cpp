@@ -7,21 +7,29 @@
 #include "QuickSort-Advance.h"
 #include "QuickSort2.h"
 #include "QuickSort3.h"
+#include "Inversion-Number.h"
+#include "QuickSort-Selection.h"
 
 using namespace std;
 
 int main() {
 	
-	int n = 1000000;
+	int n = 100;
+    long long num;
 
 	int* arr1 = SortTestHelper::generateRandomArray(n, 0, n);
 	int* arr2 = SortTestHelper::copyArray(arr1, n);
 	int* arr3 = SortTestHelper::copyArray(arr1, n);
 
 	SortTestHelper::testSort("Merge Sort", mergeSort, arr1, n);
-	//SortTestHelper::testSort("Quick Sort", quickSort, arr2, n);
+	//SortTestHelper::testSort("quickSort3Ways", quickSort3Ways, arr2, n);
     SortTestHelper::testSort("Quick Sort3", quickSort3, arr3, n);
-	//SortTestHelper::printArray(arr1, n);
+	SortTestHelper::printArray(arr1, n);
+    num = mergeSort_inversion(arr2, n);
+    cout << "逆序数为：" << num << endl;
+    int i = 10;
+    int m = quickSort_selection(arr1, n, i);
+    cout << "第" << i << "大的数为" << m << endl;
 
 	delete[] arr1;
 	delete[] arr2;
