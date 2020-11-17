@@ -5,8 +5,10 @@
 #include <ctime>
 
 
+
 template <typename T>
 void __quickSort3(T arr[], int l, int r) {
+
 
 	if (r - l <= 15) {
 		insertionSort(arr, l, r);
@@ -15,6 +17,7 @@ void __quickSort3(T arr[], int l, int r) {
 
 	//partition
 	swap(arr[l], arr[rand() % (r - l + 1) + l]);
+
 	T v = arr[l];
 
 	int lt = l; //arr[l+1, lt] < v
@@ -23,8 +26,8 @@ void __quickSort3(T arr[], int l, int r) {
 	while (i < gt) {
 		if (arr[i] < v) {
 			swap(arr[i], arr[lt + 1]);
-			lt++;
 			i++;
+			lt++;
 		}
 		else if (arr[i] > v) {
 			swap(arr[i], arr[gt - 1]);
@@ -34,8 +37,10 @@ void __quickSort3(T arr[], int l, int r) {
 			i++;
 		}
 	}
+
 	swap(arr[l], arr[lt]);
-	__quickSort3(arr, 0, lt - 1);
+
+	__quickSort3(arr, l, lt - 1);
 	__quickSort3(arr, gt, r);
 }
 
