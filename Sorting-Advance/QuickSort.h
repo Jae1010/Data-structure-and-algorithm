@@ -10,8 +10,7 @@ int __partition(T arr[], int l, int r) {
     int j = l; // arr[l+1...j] < v ; arr[j+1...i) > v
     for (int i = l + 1; i <= r; i++)
         if (arr[i] < v) {
-            j++;
-            swap(arr[j], arr[i]);
+            swap(arr[++j], arr[i]);
         }
 
     swap(arr[l], arr[j]);
