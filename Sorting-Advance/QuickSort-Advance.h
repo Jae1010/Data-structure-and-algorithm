@@ -9,7 +9,7 @@ int __partition(T arr[], int l, int r) {
 	swap(arr[l], arr[rand() % (r - l + 1) + l]);
 	T v = arr[l];
 
-	//arr[l+1, j] < v, arr[j+1, i] >v
+	//arr[l+1, j] < v, arr[j+1, i) >v
 	int j = l;
 	for (int i = l + 1; i <= r; i++) {
 		if (arr[i] < v) {
